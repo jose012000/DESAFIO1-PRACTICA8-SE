@@ -1,0 +1,70 @@
+#include <Arduino.h>
+#include <Wire.h> //for ESP8266 use bug free i2c driver https://github.com/enjoyneering/ESP8266-I2C-Driver
+#include <LiquidCrystal_I2C.h>
+
+#define COLUMS 16
+#define ROWS 2
+
+#define PAGE ((COLUMS) * (ROWS))
+
+LiquidCrystal_I2C lcd(PCF8574_ADDR_A21_A11_A01, 4, 5, 6, 16, 11, 12, 13, 14, POSITIVE);
+
+
+void setup() {
+Serial.begin(115200);
+Serial2.begin(9600);
+
+while (lcd.begin(COLUMS, ROWS) != 1) //colums - 20, rows - 4
+{
+Serial.println(F("PCF8574 is not connected or lcd pins declaration is wrong. Only pins numbers: 4,5,6,16,11,12,13,14 are legal."));
+delay(5000);
+}
+
+lcd.print(F("PCF8574 is OK...")); //(F()) saves string to flash & keeps dynamic memory free
+delay(2000);
+
+lcd.clear();
+}
+
+void loop() {
+
+/*if (Serial2.available() > 0){ //Se verifica que se haya ingresado un texto por serial0 o cable usb
+Serial.println(Serial2.readStringUntil('\n')); //se lee el texto ingresado y se lo envia por el serial2
+}*/
+
+if (Serial.available() > 0){ //Se verifica que se haya ingresado un texto por serial0 o cable usb
+String v = Serial.readStringUntil('\n');
+int a;
+a=v.toInt();
+if(a <= -20) {
+lcd.clear();
+lcd.setCursor(3,0); //columna - fila
+lcd.print("helado");
+delay(1000);
+}else if(a <= 20){
+lcd.clear();
+lcd.setCursor(3,0); //columna - fila
+lcd.print("frio");
+delay(1000);
+}else if(a <= 40){
+lcd.clear();
+lcd.setCursor(3,0); //columna - fila
+lcd.print("normal");
+delay(1000);
+}else if(a <= 75){
+lcd.clear();
+lcd.setCursor(3,0); //columna - fila
+lcd.print("calentando");
+delay(1000);
+}else{
+lcd.clear();
+lcd.setCursor(3,0); //columna - fila
+lcd.print("alerta");
+delay(1000);
+}
+}
+else {
+Serial2.println("ERROR");
+delay(500);
+}
+}
